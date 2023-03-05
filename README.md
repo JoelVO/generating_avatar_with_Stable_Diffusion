@@ -144,10 +144,12 @@ was, which gave me the vector to create the following images.
 
 
 
-Before we go on, let me say something about an extra meaning we can assign to the principal component vector I'm using. Since I was getting the principal component $v$ and was using it to move around the latent space, I could build a function $\phi$ from the latent space to $\mathbb{R}$ such that $\phi(x) = x\cdot v$. Thus, if $c\in\mathbb{R}$ is the parameter which will parametrize the movement on the direction $v$, $\phi(x+cv) = x\cdot v + c||v||^2 = c\cdot v+c$ since $v$ is normalized. Hence, we can understand $c$ as the amount of units we'll be moving in the desired direction, i.e. how many years the person will age, how many color units the clothing will change or how many length units the hair will grow. It also give us some insight into the way Stable Diffusion understand the properties we are talking about.
+Before we go on, let me say something about an extra meaning we can assign to the principal component vector I'm using. Since I was getting the principal component $v$ and was using it to move around the latent space, I could build a function $\phi$ from the latent space to $\mathbb{R}$ such that $\phi(x) = x\cdot v$. Thus, if $c\in\mathbb{R}$ is the parameter which will parametrize the movement on the direction $v$, $\phi(x+cv) = x\cdot v + c||v||^2 = c\cdot v+c$ since $v$ is normalized. Hence, we can understand $c$ as the amount of units we'll be moving in the desired direction, i.e. how many years the person will age, how many color units the clothing will change or how many length units the hair will grow. It also give us some insight into the way Stable diffusion understand the properties we are talking about. For instance it shows how it understands age and colors as a continuium, but hair length as two clusters.
 
+|$\phi$ for age|$\phi$ for color in woman's clothing vs. color in men's clothing|$\phi$ for hair length woman vs. man|
+| ------------- | ------------- |------------- |
+|![age](https://user-images.githubusercontent.com/57953211/222961633-e6f1de19-e6a6-4af7-9c0f-1774e8b685d4.png)|![color](https://user-images.githubusercontent.com/57953211/222961634-5ac358ac-f296-4965-ba5f-fd595199cb3c.png)|![hair](https://user-images.githubusercontent.com/57953211/222961640-8ac4db61-3bcb-4dd7-aebf-6348faed331d.png)|
 
-**ADD IMAGES**
 
 Just to prove this was not only something from the human-related encodings, I tested the same technique to make the hours or months pass in 
 a Central Park's image. The method proved to be successful and I generated some gifs to show how it not only distinguishes hours from months 
@@ -158,4 +160,45 @@ but also how smooth the transition is.
 | ![landscape_hours](https://user-images.githubusercontent.com/57953211/222930196-65d9e934-2b89-4db7-84e4-a5073caf93b7.gif) | ![landscape_months](https://user-images.githubusercontent.com/57953211/222930203-7f84f3bc-2ce8-40b2-8498-464db5ba62cc.gif)
   |
 
+## Modifying a picture
 
+Now that I have a better understanding on how the latent space works, I can finally tackle the problem on how to modify a photo I input and not just generate them.
+
+As we all know, Stable diffusion begins with a random noise patch Gaussianly distributed and it's through several loops in which the text encoding works as a conditional diffusion that we get the image we're looking for. Knowing this, the first thing we would be tempted to do is to take our input photo, encode it and use it as the noise patch, but sadly this won't work because the network is expecting the patch to have a Gaussian distribution, which is very different form the distribution an usual picture would have.
+
+Thus, we want to build a patch out of our input such that its distribution is similar to that of a $\mathcal{N}(0,1)$, but which still has some information of the original photo, so we are not just getting whatever randomly generated image and one of the most natural ways to do it is to generate a $g\sim\mathcal{N}$ and if $f$ is our original photo, then pick $\alpha \in (0,1)$ and take $\alpha g + (1-\alpha)f$ as the vector we are looking for, where we will choose $\alpha$ such that Stable diffusion still recognizes the input as Gaussian, but which produces reasonable outcomes.
+
+This may be anticlimatic at first sight, but it's actually deeper than it looks like. Yes, at the end of the day it is just an interpolation, but since our previously discussed $\Omega$ is compact, this interpolation is a constant velocity curve between the distribution $I$ and $\mathcal{N}(0,1)$ in the space of probability distributions with the $p$-Wasserstein distance as metric operator and thus, not only the trajectory we're following by changing $\alpha$ is the optimal transport path between the distributions in question but also we are connectign them by a geodesic, both statements assuring us that this simple interpolation is acutally the best option we have in this scenario.
+
+
+## Editing my photo
+
+Finally I got to the point in which I edit my own picture. So what I will do is take one photo of me as a child, send it to the latent space, make the interpolation for its distribution to be closer to a Gaussian one, compute vectors to make me older, to wear glasses and to make skin darker because as you may have noticed in the examples above, this network has the tendency to generate people of lighter skin and apply them in the patch I obtained to get a photo to put on my cv. As I mentioned before, the goal of this work ain't producing an avatar identical to me, but to proof I can modify my photo in order for it to still be a realisitc photo someone would put on their cv.
+
+So one photo I liked, not just because of the content but because my face appears clearly, was one they took at the hospital when I sister was born. You can see the original photo and the copping below.
+
+| Original photo  | Cropped photo |
+| ------------- | ------------- |
+|![IMG_0124](https://user-images.githubusercontent.com/57953211/222963667-fc2a8eab-1e6f-40a7-9d8b-63c435807f49.jpeg)|![photo5](https://user-images.githubusercontent.com/57953211/222963685-046aba3f-dfdc-44c7-80db-af1c0ddca878.png)|
+
+Then, having "A little boy of 5 years old at the park posing for a photo for his cv" as prompt, I input my picture into the network to generate a Stable-diffusion-version of me in the park, from which I got the following examples.
+
+| Original photo  | Example 1 | Example 2| Example 3|
+| ------------- | ------------- |------------- |------------- |
+|![photo5](https://user-images.githubusercontent.com/57953211/222963685-046aba3f-dfdc-44c7-80db-af1c0ddca878.png)|![child1](https://user-images.githubusercontent.com/57953211/222964000-49189b7d-a42d-43cd-a1b9-d9a639b91839.png)|![child2](https://user-images.githubusercontent.com/57953211/222964002-61f55275-ce0a-4f1d-a4d5-dfdca765c121.png)|![child3](https://user-images.githubusercontent.com/57953211/222964003-aaa4f0ba-56bd-42ad-be88-bfc5d1481467.png)|
+
+Realizing those kids actually look like me as a child, I applied the vectors as explained before and this is what I got.
+
+|Input photo|A photo of me at a park|Generated photo|
+| ------------- | ------------- |------------- |
+|![photo5](https://user-images.githubusercontent.com/57953211/222963685-046aba3f-dfdc-44c7-80db-af1c0ddca878.png)|![my_photo](https://user-images.githubusercontent.com/57953211/222964679-f5124fd0-9c7d-4ff8-8541-b47e33fcc835.png)|![94](https://user-images.githubusercontent.com/57953211/222964691-76fbf3bd-67f4-423e-91be-c0fb78f0e6ac.png)|
+
+Last but not least, if you want to see the trajectory from the generated child to the final photo, you have the next gif.
+
+
+<p align="center">
+  <img src=https://user-images.githubusercontent.com/57953211/222964793-c98bf786-92ae-44d4-80bd-6ba5a8b31cdb.gif alt="animated" />
+  <p align="center"> Evolution of my avatar </p>
+</p>
+
+I hope you liked it!
