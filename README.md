@@ -55,7 +55,13 @@ Testing out this idea I took as my new prompts:
 from which I got the following results using the interpolator vector I got before.
 
 
-**ADD IMAGES**
+| prompt's image  | prompt plus interpolator vector|prompt's image  | prompt plus interpolator vector|
+| ------------- | ------------- |------------- | ------------- |
+|<p align="center"> prompt 1 </p>![or0](https://user-images.githubusercontent.com/57953211/222958270-a64be54d-1ff7-4d1b-93ad-5854c30df1b3.png)|<p align="center"> prompt 1 + interpolator </p>![or4](https://user-images.githubusercontent.com/57953211/222958273-72c3f5e9-1af0-405c-893e-39ac3cface10.png)|<p align="center"> prompt 3 </p>![0](https://user-images.githubusercontent.com/57953211/222958276-498be504-ccdc-4466-8fb3-63c8570d4cb2.png)|<p align="center"> prompt 3 + interpolator </p>![3](https://user-images.githubusercontent.com/57953211/222958279-079dd3c6-347d-4580-9a17-44d0086b7a5d.png)|
+|<p align="center"> prompt 4 </p>![1](https://user-images.githubusercontent.com/57953211/222958277-5ad0fc99-d37a-46a4-b329-8c7a6d4410b5.png)|<p align="center"> prompt 4 + interpolator </p>![4](https://user-images.githubusercontent.com/57953211/222958280-dda7390c-c02f-442f-aeaf-1dbc719091f3.png)|<p align="center"> prompt 5 </p>![2](https://user-images.githubusercontent.com/57953211/222958278-6c93856b-84a7-4d91-831d-293b18ffe172.png)|<p align="center"> prompt 5 + interpolator </p>![5](https://user-images.githubusercontent.com/57953211/222958281-14b6df0f-25c3-4a18-b9a8-0561ddf43db5.png)|
+
+
+It can be appreciated how despite still getting reasonable outputs, they have more modifications than expected since the bowl of fruit changed its background and content and in one case, the fruit even got wormholes. Nonetheless, this suggests interpolators can be generalized, but I would need to change the methodology in order to get what I'm looking for.
 
 ### Switching to humans
 
@@ -72,10 +78,14 @@ in the exact same situation being $t_1$ years old, then $f(\pi_0) + (t_1-t_0)\om
 Hence, practically speaking and keeping the notation, one way to go further is to get a batch of prompts $x\sim P$ such that the context remains the
 same, but what changes is the age of the person and apply PCA on $f[x]$, from which I will obtain $\omega$ as the principal component. I tried to try this
 idea out with prompts literally just discribing a "person", but Stable diffusion proved to be quite bad at generating good images with them,
-so taking it as a sign of the latent space not being as nice for that word, I created prompts for "woman" and "man", using the former to obtain $\omega$
+so taking it as a sign of the latent space not being as nice around that word, I created prompts for "woman" and "man", using the former to obtain $\omega$
 and testing it on both sets.
 
-**ADD IMAGES**
+| 20 years old  | 35 years old|50 years old|65 years old|80 years old|
+| ------------- | ------------- |------------- | ------------- |------------- |
+|![woman_0](https://user-images.githubusercontent.com/57953211/222959187-46f0b16b-cc9c-446a-94ba-c5ee3631ee70.png)|![woman_1](https://user-images.githubusercontent.com/57953211/222959188-77d9df08-ccb9-4c77-9fc6-30bbaca92697.png)|![woman_2](https://user-images.githubusercontent.com/57953211/222959189-a6ea4b2e-0cc1-44ff-8091-7a7c95ddf3ea.png)|![woman_3](https://user-images.githubusercontent.com/57953211/222959190-07526e5c-16de-4b53-be7f-9fe6b5af7d33.png)|![woman_4](https://user-images.githubusercontent.com/57953211/222959191-736e20e8-7ced-4718-8cd9-c4cf9475b98b.png)|
+|![man_0](https://user-images.githubusercontent.com/57953211/222959387-6a02435e-9a91-4924-8ac9-41251452c978.png)|![man_1](https://user-images.githubusercontent.com/57953211/222959389-998fa624-c977-4dad-93d2-1dda130d9592.png)|![man_2](https://user-images.githubusercontent.com/57953211/222959390-198c5483-23a0-4e2e-9eed-bbab396ab2ef.png)|![man_3](https://user-images.githubusercontent.com/57953211/222959391-47dc4f29-4e53-480c-beaa-2cf5193c8e62.png)|![man_4](https://user-images.githubusercontent.com/57953211/222959392-eb13cced-105d-4f58-80d9-29b64bb67285.png)|
+
 
 
 At this point you may be asking a very valid question: why don't generate an ordered batch in which the a person of age $a_1$ is in different situations 
@@ -84,7 +94,18 @@ between corresponding elements and take the interpolation vector as its mean?
 Well, I have two answers for that. The first reason is because of PCA's ability for deal better while removing noise. You can see below the outcome of
 applying the previously pca-obtained interpolation vector to the promp "A happy 20 years old man" vs. the one obtained by getting the mean.
 
-**ADD IMAGES**
+|20 years old PCA|35 years old PCA|50 years old PCA|65 years old PCA|80 years old PCA|
+| ------------- | ------------- |------------- | ------------- |------------- |
+|![pca0](https://user-images.githubusercontent.com/57953211/222960288-0985d8db-0755-460c-bf8e-9f8a9e626848.png)|![pca1](https://user-images.githubusercontent.com/57953211/222960289-80950571-f03a-4640-a91c-a5ae94b0ec2f.png)|![pca2](https://user-images.githubusercontent.com/57953211/222960290-034671d9-05c5-4c9b-ac58-094e8c3bebb0.png)|![pca3](https://user-images.githubusercontent.com/57953211/222960291-fec4e5d5-3d0b-448d-9bed-37b5b18d9886.png)|![pca4](https://user-images.githubusercontent.com/57953211/222960292-16ebd4f2-b3c0-4ca9-a27a-e1247065413e.png)|
+
+
+
+
+|20 years old difference vector|35 years old PCA difference vector|50 years old PCA difference vector|65 years old PCA difference vector|80 years old PCA difference vector|
+| ------------- | ------------- |------------- | ------------- |------------- |
+|![dif0](https://user-images.githubusercontent.com/57953211/222960321-24718cf5-ef1c-435b-aa11-45c8dd6afaac.png)|![dif1](https://user-images.githubusercontent.com/57953211/222960322-3cb1bad8-8e9e-4bb7-9d61-e582f8cb7478.png)|![dif2](https://user-images.githubusercontent.com/57953211/222960323-9e89bf5c-a7f0-4d73-8dc3-9f30c3b03160.png)|![dif3](https://user-images.githubusercontent.com/57953211/222960324-ae2010f0-53f9-414b-850a-d7b33ff2fee0.png)|![dif4](https://user-images.githubusercontent.com/57953211/222960325-ae93e51f-647c-4217-8e5b-a237bfc3342f.png)|
+
+
 
 It can be appreciated how in both cases the person aged, but that in the mean version the person changed the shirt's position, got a hat or a wig,
 got glasses and then lost them and changed the background, whereas for the one generated by the pca case, they kept the glasses once in the picture,
@@ -101,7 +122,11 @@ It may be worth mentioning that even if colors can be represented as numbers, we
 I cannot recall the last time I heard somebody praising the 570 to 590 nm wavelength in van Gogh's paintings or asking for a B60017 apple and thus the not 
 only discrete nature of the colors but also the impossibility of embedding them continuously into $\mathbb{N}$.
 
-**ADD IMAGES**
+|blue skirt|1st color change|2nd color change|3rd color change|gray skirt|
+| ------------- | ------------- |------------- | ------------- |------------- |
+|![skirt0](https://user-images.githubusercontent.com/57953211/222960585-e9e451b4-cf2a-4a12-90c1-c420d92da516.png)|![skirt1](https://user-images.githubusercontent.com/57953211/222960586-acc8d313-a950-41dc-b58d-50353973aa9f.png)|![skirt2](https://user-images.githubusercontent.com/57953211/222960587-60470052-d448-41e9-94bf-c16d65a86dc6.png)|![skirt3](https://user-images.githubusercontent.com/57953211/222960588-cd8c7eeb-b10f-444d-a2bf-9d3abcc435db.png)|![skirt4](https://user-images.githubusercontent.com/57953211/222960589-90180184-9101-4dbc-9e87-5c9633d00f07.png)|
+
+
 
 But there may be even harder cases in which we are working with a characteristic with only few classes, for example having short, medium or long hair
 or wearing glasses or not. Since I'm using PCA, applying it to a two prompts dataset ("person short/medium/long hair") doesn't make too much sense,
@@ -109,12 +134,17 @@ but I've mentioned that obtaining averaging creates a lot of undesired changes o
 just one principal component, I created prompts in which I was not only changing the description of the hair length but also on the place the person
 was, which gave me the vector to create the following images.
 
+|short hair|long hair|even longer hair|
+| ------------- | ------------- |------------- |
+|![whairs](https://user-images.githubusercontent.com/57953211/222960924-2beb725c-d506-4c8e-834f-7aea0277c1a5.png)|![whairm](https://user-images.githubusercontent.com/57953211/222960927-de85c242-049f-48b1-b93a-6f383c7e84f1.png)|![whairl](https://user-images.githubusercontent.com/57953211/222960929-4b833ad7-beb7-4ba8-a1f0-2f019709997d.png)|
 
-**ADD IMAGES**
+|short hair|medium hair|long hair|
+| ------------- | ------------- |------------- |
+|![mhairs](https://user-images.githubusercontent.com/57953211/222960960-fa8abdd4-17f1-43d3-aedf-5772413a2246.png)|![mhairm](https://user-images.githubusercontent.com/57953211/222960961-156ec811-8df2-481f-aa59-e9d85bd383ab.png)|![mhairl](https://user-images.githubusercontent.com/57953211/222960962-755ae1bf-e011-4307-a43f-22fdd59e34b9.png)|
 
 
-Before we go on, I would like to mention that this also talks about the way Stable Diffusion encodes texts and how it recognizes some
-properties as continuous and some others as binary despite I provided more possible categories.
+
+Before we go on, let me say something about an extra meaning we can assign to the principal component vector I'm using. Since I was getting the principal component $v$ and was using it to move around the latent space, I could build a function $\phi$ from the latent space to $\mathbb{R}$ such that $\phi(x) = x\cdot v$. Thus, if $c\in\mathbb{R}$ is the parameter which will parametrize the movement on the direction $v$, $\phi(x+cv) = x\cdot v + c||v||^2 = c\cdot v+c$ since $v$ is normalized. Hence, we can understand $c$ as the amount of units we'll be moving in the desired direction, i.e. how many years the person will age, how many color units the clothing will change or how many length units the hair will grow. It also give us some insight into the way Stable Diffusion understand the properties we are talking about.
 
 
 **ADD IMAGES**
